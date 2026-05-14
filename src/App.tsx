@@ -165,7 +165,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gray-50 pb-24 font-sans text-gray-900">
       {/* Header & Search */}
-      <div className="bg-white p-4 shadow-sm sticky top-0 z-10">
+ <div className="bg-white p-4 pt-[calc(env(safe-area-inset-top)+1rem)] shadow-sm sticky top-0 z-10">
         <h1 className="text-2xl font-bold mb-4 text-center">Pantry</h1>
         <div className="flex gap-2">
           <div className="relative flex-1">

@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+html, body {
+  overscroll-behavior-y: none; /* Stops the bounce effect */
+  height: 100%;
+  -webkit-tap-highlight-color: transparent; /* Removes the grey flash when clicking buttons */
+}
+
 /* You can put custom CSS below here if you ever need it */
 body {
   background-color: #f9fafb; /* gray-50 */
