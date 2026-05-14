@@ -103,27 +103,39 @@ export default function App() {
   }, [items, searchQuery]);
 
   // --- Actions ---
-  const handleAction = (id: string, action: 'open' | 'cook' | 'eat' | 'remove') => {
-    setItems(prev => prev.map(item => {
+const handleAction = (id: string, action: 'open' | 'cook' | 'eat' | 'remove') => {
+  setItems(prev => {
+    const updated = prev.map((item): FoodItem => { // 1. Added explicit return type here
       if (item.id !== id) return item;
       
       const today = getTodayStr();
       switch (action) {
-        case 'open': return { ...item, openedDate: today };
-        case 'cook': return { ...item, cookedDate: today };
-        case 'eat': return { 
-          ...item, 
-          status: 'unowned', 
-          originalExpirationDate: null, 
-          openedDate: null, 
-          cookedDate: null 
-        };
-        default: return item;
+        case 'open': 
+          return { ...item, openedDate: today };
+        case 'cook': 
+          return { ...item, cookedDate: today };
+        case 'eat': 
+          return { 
+            ...item, 
+            status: 'unowned', // TS now knows this must fit FoodItem.status
+            originalExpirationDate: null, 
+            openedDate: null, 
+            cookedDate: null 
+          };
+        default: 
+          return item;
       }
-    }).filter(item => action === 'remove' ? item.id !== id : true));
-    
-    setSelectedItem(null);
-  };
+    });
+
+    // 2. Handle removal after the map
+    if (action === 'remove') {
+      return updated.filter(i => i.id !== id);
+    }
+    return updated;
+  });
+  
+  setSelectedItem(null);
+};
 
   // --- Form Handling ---
   const openForm = (mode: FormMode, item?: FoodItem) => {
@@ -143,23 +155,29 @@ export default function App() {
     }
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const newItem = {
-      ...formData,
-      id: formData.id || crypto.randomUUID(),
-      status: 'owned',
-    } as FoodItem;
-
-    if (formMode === 'new' || formMode === 'duplicate') {
-      setItems(prev => [...prev, newItem]);
-    } else {
-      setItems(prev => prev.map(i => i.id === newItem.id ? newItem : i));
-    }
-    
-    setFormMode(null);
-    setSearchQuery('');
+const handleFormSubmit = (e: React.FormEvent) => {
+  e.preventDefault();
+  
+  const newItem: FoodItem = {
+    title: formData.title || '',
+    daysToConsumeAfterOpening: formData.daysToConsumeAfterOpening || 0,
+    daysToConsumeAfterCooking: formData.daysToConsumeAfterCooking || 0,
+    originalExpirationDate: formData.originalExpirationDate || null,
+    id: formData.id || crypto.randomUUID(),
+    status: 'owned', // Literal type
+    openedDate: formData.openedDate || null,
+    cookedDate: formData.cookedDate || null,
   };
+
+  if (formMode === 'new' || formMode === 'duplicate') {
+    setItems(prev => [...prev, newItem]);
+  } else {
+    setItems(prev => prev.map(i => i.id === newItem.id ? newItem : i));
+  }
+  
+  setFormMode(null);
+  setSearchQuery('');
+};
 
   // --- Rendering ---
   return (
